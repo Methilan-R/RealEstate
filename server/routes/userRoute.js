@@ -1,10 +1,23 @@
 import express from "express";
-import { createUser } from "../controllers/userCntrl.js";
+import {
+  bookVisit,
+  cancelBooking,
+  createUser,
+  getAllBookings,
+  getAllFavorites,
+  toFav,
+} from "../controllers/userCntrl.js"; 
+
 const router = express.Router();
+
  
 
 // Routes
-router.post("/register", createUser);
- 
+router.post("/register",  createUser);
+router.post("/bookVisit/:id",  bookVisit);
+router.post("/allBookings", getAllBookings);
+router.post("/removeBooking/:id", cancelBooking);
+router.post("/toFav/:rid",  toFav);
+router.post("/allFav/",  getAllFavorites);
 
 export { router as userRoute };
