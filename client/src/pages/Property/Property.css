@@ -5,7 +5,7 @@
 
 .property-container .like{
     position: absolute;
-    top: 3rem;right:18rem;
+    top: 3rem;right: 3rem;
     cursor: pointer;
 }
 
@@ -13,12 +13,12 @@
 .property-container>img{
     align-self: center;
     max-height: 35rem;
-    width: 70%;
+    width: 100%;
     border-radius: 1rem;
     object-fit: cover;
 }
 
-.property-details{ 
+.property-details{
     width: 100%;
     gap: 2rem;
     justify-content: space-between;

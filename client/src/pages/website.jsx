@@ -7,22 +7,22 @@ import Header from "../components/Header/Header";
 import Hero from "../components/Hero/Hero";
 import Residencies from "../components/Residencies/Residencies";
 import Value from "../components/Value/Value";
-const website = () => {
+
+
+const Website = () => {
   return (
     <div className="App">
-      <div>
-        <div className="white-gradient" />
-         
-        <Hero />
-      </div>
-      <Companies />
-      <Residencies/>
-      <Value/>
-      <Contact/>
-      <GetStarted/>
-       
+    <div>
+      <div className="white-gradient" />
+      <Hero />
     </div>
+    <Companies />
+    <Residencies/>
+    <Value/>
+    <Contact/>
+    <GetStarted/>
+  </div>
   )
 }
 
-export default website
+export default Website

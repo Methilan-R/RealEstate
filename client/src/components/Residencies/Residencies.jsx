@@ -1,18 +1,20 @@
 import React from "react";
-import data from "../../utils/slider.json";
 import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
 // Import Swiper styles
 import "swiper/css";
 import "./Residencies.css";
 import { sliderSettings } from "../../utils/common";
-import ProperyCard from "../PropertyCard/ProperyCard";
+import PropertyCard from "../PropertyCard/PropertyCard";
 import useProperties from "../../hooks/useProperties";
-import { PuffLoader } from "react-spinners";
+import {PuffLoader} from 'react-spinners'
+
 const Residencies = () => {
-  const {data,isError,isLoading} = useProperties()
-   if(isError){
+
+  const {data, isError, isLoading} = useProperties()
+
+  if(isError){
     return(
-      <div className="wrapper">
+      <div className='wrapper'>
         <span>Error while fetching data</span>
       </div>
     )
@@ -20,17 +22,19 @@ const Residencies = () => {
 
   if(isLoading){
     return(
-      <div className="wrapper flexCenter" style={{height:"60vh"}}>
+      <div className="wrapper flexCenter" style={{height: "60vh"}}>
         <PuffLoader
         height="80"
         width="80"
         radius={1}
-        color='#4066ff'
-        aria-label='puff-Loading'
+        color="#4066ff"
+        aria-label="puff-loading"
         />
       </div>
     )
   }
+
+
   return (
     <div id="residencies" className="r-wrapper">
       <div className="paddings innerWidth r-container">
@@ -43,7 +47,7 @@ const Residencies = () => {
           {/* slider */}
           {data.slice(0, 8).map((card, i) => (
             <SwiperSlide key={i}>
-              <ProperyCard card={card}/>
+              <PropertyCard card={card}/>
             </SwiperSlide>
           ))}
         </Swiper>

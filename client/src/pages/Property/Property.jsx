@@ -1,21 +1,49 @@
-import React from 'react';
-import { getProperty } from '../../utils/api';
-import { useLocation } from 'react-router-dom';
-import { useQuery } from 'react-query';
-import { PuffLoader } from 'react-spinners';
-import { AiFillHeart, AiTwotoneCar } from 'react-icons/ai';
-import { FaShower } from 'react-icons/fa';
-import { MdLocationPin, MdMeetingRoom } from 'react-icons/md';
-import './Property.css';
-import Map from '../../components/Map/Map';
+import React, { useContext, useState } from "react";
+import { useMutation, useQuery } from "react-query";
+import { useLocation } from "react-router-dom";
+import { getProperty, removeBooking } from "../../utils/api";
+import { PuffLoader } from "react-spinners";
+import { AiFillHeart } from "react-icons/ai";
+import "./Property.css";
 
+import { FaShower } from "react-icons/fa";
+import { AiTwotoneCar } from "react-icons/ai";
+import { MdLocationPin, MdMeetingRoom } from "react-icons/md";
+import Map from "../../components/Map/Map";
+import useAuthCheck from "../../hooks/useAuthCheck";
+import { useAuth0 } from "@auth0/auth0-react";
+import BookingModal from "../../components/BookingModal/BookingModal";
+import UserDetailContext from "../../context/UserDetailContext.js";
+import { Button } from "@mantine/core";
+import { toast } from "react-toastify";
+import Heart from "../../components/Heart/Heart";
 const Property = () => {
   const { pathname } = useLocation();
   const id = pathname.split("/").slice(-1)[0];
+  const { data, isLoading, isError } = useQuery(["resd", id], () =>
+    getProperty(id)
+  );
 
-  const { data, isLoading, isError } = useQuery(["resd", id], () => getProperty(id));
+  const [modalOpened, setModalOpened] = useState(false);
+  const { validateLogin } = useAuthCheck();
+  const { user } = useAuth0();
 
-  console.log(data);
+  const {
+    userDetails: { token, bookings },
+    setUserDetails,
+  } = useContext(UserDetailContext);
+
+  const { mutate: cancelBooking, isLoading: cancelling } = useMutation({
+    mutationFn: () => removeBooking(id, user?.email, token),
+    onSuccess: () => {
+      setUserDetails((prev) => ({
+        ...prev,
+        bookings: prev.bookings.filter((booking) => booking?.id !== id),
+      }));
+
+      toast.success("Booking cancelled", { position: "bottom-right" });
+    },
+  });
 
   if (isLoading) {
     return (
@@ -40,52 +68,54 @@ const Property = () => {
   return (
     <div className="wrapper">
       <div className="flexColStart paddings innerWidth property-container">
-        {/* Like button */}
+        {/* like button */}
         <div className="like">
-          <AiFillHeart size={24} color="white" />
+          <Heart id={id}/>
         </div>
 
-        {/* Image */}
+        {/* image */}
         <img src={data?.image} alt="home image" />
 
         <div className="flexCenter property-details">
-          {/* Left */}
+          {/* left */}
           <div className="flexColStart left">
-            {/* Head */}
+            {/* head */}
             <div className="flexStart head">
               <span className="primaryText">{data?.title}</span>
               <span className="orangeText" style={{ fontSize: "1.5rem" }}>
-                ${data?.price}
+                $ {data?.price}
               </span>
             </div>
 
-            {/* Facilities */}
+            {/* facilities */}
             <div className="flexStart facilities">
-              {/* Bathrooms */}
+              {/* bathrooms */}
               <div className="flexStart facility">
                 <FaShower size={20} color="#1F3E72" />
                 <span>{data?.facilities?.bathrooms} Bathrooms</span>
               </div>
 
-              {/* Parkings */}
+              {/* parkings */}
               <div className="flexStart facility">
                 <AiTwotoneCar size={20} color="#1F3E72" />
-                <span>{data?.facilities?.parkings} Parking</span>
+                <span>{data?.facilities.parkings} Parking</span>
               </div>
 
-              {/* Rooms */}
+              {/* rooms */}
               <div className="flexStart facility">
                 <MdMeetingRoom size={20} color="#1F3E72" />
-                <span>{data?.facilities?.bedrooms} Room/s</span>
+                <span>{data?.facilities.bedrooms} Room/s</span>
               </div>
+            </div>
+
             {/* description */}
+
             <span className="secondaryText" style={{ textAlign: "justify" }}>
               {data?.description}
             </span>
 
-            
-            </div>
             {/* address */}
+
             <div className="flexStart" style={{ gap: "1rem" }}>
               <MdLocationPin size={25} />
               <span className="secondaryText">
@@ -95,17 +125,49 @@ const Property = () => {
               </span>
             </div>
 
-            {/*Booking button */}
-        <button className='button'>
-                Book your Visit
-            </button>
+            {/* booking button */}
+            {bookings?.map((booking) => booking.id).includes(id) ? (
+              <>
+                <Button
+                  variant="outline"
+                  w={"100%"}
+                  color="red"
+                  onClick={() => cancelBooking()}
+                  disabled={cancelling}
+                >
+                  <span>Cancel booking</span>
+                </Button>
+                <span>
+                  Your visit already booked for date{" "}
+                  {bookings?.filter((booking) => booking?.id === id)[0].date}
+                </span>
+              </>
+            ) : (
+              <button
+                className="button"
+                onClick={() => {
+                  validateLogin() && setModalOpened(true);
+                }}
+              >
+                Book your visit
+              </button>
+            )}
+
+            <BookingModal
+              opened={modalOpened}
+              setOpened={setModalOpened}
+              propertyId={id}
+              email={user?.email}
+            />
           </div>
-          {/*right side */}
+
+          {/* right side */}
           <div className="map">
             <Map
-             address={data?.address}
-             city={data?.city}
-             />
+              address={data?.address}
+              city={data?.city}
+              country={data?.country}
+            />
           </div>
         </div>
       </div>
